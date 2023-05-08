@@ -20,6 +20,7 @@ fs.mkdir(path.join(destPath, 'assets', 'img'), {recursive: true}, err => {
 
 fs.mkdir(path.join(destPath, 'assets', 'svg'), {recursive: true}, err => {
     if (err) throw err;
+    copyDir(sourcePath, path.join(destPath, 'assets'))
 })
 
 // copy assets folder
@@ -44,10 +45,7 @@ function copyDir(pathFrom, pathTo) {
     })
 }
 
-copyDir(sourcePath, path.join(destPath, 'assets'))
-
 const componentsPath = path.join(__dirname, 'components');
-
 const stylesPath = path.join(__dirname, 'styles')
 
 function copyStyles(stylesPath) {
@@ -118,16 +116,15 @@ function templateAll(componentsPath) {
     })
 }
 
-fs.writeFile(path.join(destPath, 'style.css'), '', (err) => {
-    if (err) throw err;
-})
-
 fs.writeFile(path.join(destPath, 'index.html'), '', (err) => {
     if (err) throw err;
     fs.copyFile(path.join(__dirname, 'template.html'), path.join(destPath, 'index.html'), (err) => {
-        if (err) throw err
+        if (err) throw err;
+        templateAll(componentsPath)
     })
 })
 
-setTimeout(templateAll, 500, componentsPath)
-setTimeout(copyStyles, 1000, stylesPath)
+fs.writeFile(path.join(destPath, 'style.css'), '', (err) => {
+    if (err) throw err;
+    copyStyles(stylesPath);
+})
