@@ -48,84 +48,47 @@ function copyDir(pathFrom, pathTo) {
 const componentsPath = path.join(__dirname, 'components');
 const stylesPath = path.join(__dirname, 'styles')
 
-function copyStyles(stylesPath) {
+async function copyStyles(stylesPath) {
     const newCSS = path.join(destPath, 'style.css')
+    await fs.promises.writeFile(newCSS, '', 'utf8');
 
-    fs.readFile(newCSS, {encoding: 'utf-8'}, (err, data) => {
-        if (err) throw err;
+    const files = await fs.promises.readdir(stylesPath);
+    for (let i=0; i<files.length; i++) {
+        const filePath = path.join(stylesPath, files[i]);
+        const stats = await fs.promises.stat(filePath);
 
-        fs.readdir(stylesPath, function (err, files) {
-
-            for (let i = 0; i < files.length; i++) {
-
-                const filePath = path.join(stylesPath, files[i]);
-
-                fs.stat(filePath, (error, stats) => {
-                    if (error) throw error;
-                    if (stats.isFile() && path.extname(filePath) === '.css') {
-
-                            fs.readFile(path.join(stylesPath, files[i]), {encoding: 'utf-8'}, (err, t) => {
-                                if (err) throw err;
-                                data += t + '\n';
-
-                                if (i === files.length - 1) {
-                                    fs.writeFile(newCSS, data, (err) => {
-                                        if (err) throw err;
-                                    })
-                                }
-                            })
-                    }
-                })
-            }
-        })
-    })
+        if (stats.isFile() && path.extname(filePath) === '.css') {
+            const styleChunk = await fs.promises.readFile(filePath, 'utf8');
+            await fs.promises.appendFile(newCSS, styleChunk, 'utf8');
+        }
+    }
 }
 
 
-function templateAll(componentsPath) {
+async function templateAll(componentsPath) {
     const newHTML = path.join(destPath, 'index.html')
 
-    fs.readFile(newHTML, {encoding: 'utf-8'}, (err, data) => {
-        if (err) throw err;
+    let data = await fs.promises.readFile(path.join(__dirname, 'template.html'), 'utf8');
+    const files = await fs.promises.readdir(componentsPath);
+    for (let i=0; i<files.length; i++) {
+        const filePath = path.join(componentsPath, files[i]);
+        const tempName = files[i].split('.')[0];
+        const stats = await fs.promises.stat(filePath);
 
-        fs.readdir(componentsPath, function (err, files) {
-
-            for (let i = 0; i < files.length; i++) {
-
-                const filePath = path.join(componentsPath, files[i]);
-
-                fs.stat(filePath, (error, stats) => {
-                    if (error) throw error;
-                    if (stats.isFile() && path.extname(filePath) === '.html') {
-                        const tempName = files[i].split('.')[0];
-
-                            fs.readFile(path.join(componentsPath, files[i]), {encoding: 'utf-8'}, (err, t) => {
-                                if (err) throw err;
-                                data = data.replace(`{{${tempName}}}`, t)
-
-                                if (i === files.length - 1) {
-                                    fs.writeFile(newHTML, data, (err) => {
-                                    if (err) throw err;
-                                    })
-                                }
-                            })
-                    }
-                })
-            }
-        })
-    })
+        if (stats.isFile() && path.extname(filePath) === '.html') {
+            const template = await fs.promises.readFile(path.join(componentsPath, files[i]), 'utf8');
+            data = data.replace(`{{${tempName}}}`, template)
+        }
+    }
+    await fs.promises.writeFile(newHTML, data, 'utf8');
 }
 
-fs.writeFile(path.join(destPath, 'index.html'), '', (err) => {
+fs.open(path.join(destPath, 'index.html'), 'w', (err) => {
     if (err) throw err;
-    fs.copyFile(path.join(__dirname, 'template.html'), path.join(destPath, 'index.html'), (err) => {
-        if (err) throw err;
-        templateAll(componentsPath)
-    })
+    templateAll(componentsPath)
 })
 
 fs.open(path.join(destPath, 'style.css'), 'w', (err) => {
     if (err) throw err;
     copyStyles(stylesPath);
 })
-
