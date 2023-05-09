@@ -6,8 +6,21 @@ console.log('start')
 const sourcePath = path.resolve(__dirname, 'files');
 const destPath = path.resolve(__dirname, 'files-copy')
 
-fs.mkdir(destPath, {recursive: true}, err => {
-    if (err) throw err;
+fs.stat(destPath, function (err) {
+    if (err) {
+        fs.mkdir(destPath, {recursive: true}, err => {
+            if (err) throw err;
+        })
+        copyDir(sourcePath, destPath)
+    } else {
+        fs.rmdir(destPath, {recursive: true}, function (err) {
+            if (err) throw err;
+            fs.mkdir(destPath, {recursive: true}, err => {
+                if (err) throw err;
+                copyDir(sourcePath, destPath)
+            })
+        })
+    }
 })
 
 function copyDir(pathFrom, pathTo) {
@@ -32,15 +45,3 @@ function copyDir(pathFrom, pathTo) {
         }
     })
 }
-
-copyDir(sourcePath, destPath)
-
-/*fs.mkdir(destPath, {recursive: true}, err => {
-    if (err) throw err;
-})
-console.log(path.join(sourcePath, 'test-css.css'))
-console.log(path.join(destPath, 'test-css.css'))
-fs.copyFile(path.join(sourcePath, 'test-css.css'),
-    path.join(destPath, 'test-css.css'), (err) => {
-        if (err) throw err;
-    })*/

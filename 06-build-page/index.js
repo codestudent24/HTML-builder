@@ -124,7 +124,8 @@ fs.writeFile(path.join(destPath, 'index.html'), '', (err) => {
     })
 })
 
-fs.writeFile(path.join(destPath, 'style.css'), '', (err) => {
+fs.open(path.join(destPath, 'style.css'), 'w', (err) => {
     if (err) throw err;
     copyStyles(stylesPath);
 })
+

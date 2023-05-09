@@ -3,7 +3,7 @@ const path = require('path');
 
 console.log('start')
 
-stylesPath = path.join(__dirname, 'styles');
+stylesPath = path.join(__dirname,  'styles');
 
 fs.writeFile(path.join(__dirname, 'bundle.css'), '', (err) => {
     if (err) console.log('error :' + err)
@@ -21,7 +21,7 @@ function copyStyles(pathFrom) {
                         if (err) {
                             throw err;
                         } else {
-                            fs.appendFile(path.join(__dirname, 'bundle.css'), data, (err) => {
+                            fs.appendFile(path.join(__dirname, 'project-dist', 'bundle.css'), data, (err) => {
                                 if (err) console.log('error :' + err)
                             })
                         }
