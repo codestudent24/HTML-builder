@@ -5,8 +5,9 @@ console.log('start')
 
 stylesPath = path.join(__dirname,  'styles');
 
-fs.writeFile(path.join(__dirname, 'bundle.css'), '', (err) => {
-    if (err) console.log('error :' + err)
+fs.writeFile(path.join(__dirname, 'project-dist', 'bundle.css'), '', (err) => {
+    if (err) console.log('error :' + err);
+    copyStyles(stylesPath)
 })
 
 function copyStyles(pathFrom) {
@@ -31,5 +32,3 @@ function copyStyles(pathFrom) {
         }
     })
 }
-
-copyStyles(stylesPath)
